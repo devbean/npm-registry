@@ -2,13 +2,15 @@
 
 set -e
 
-COUCHAPP_VERSION=v2.6.12
+COUCHAPP_VERSION=v2.6.13
 COUCHAPP_GIT=https://github.com/npm/npm-registry-couchapp.git
 COUCHAPP_LOCAL_PATH=/opt/couchapp
 
 KAPPA_VERSION=v0.14.3
 KAPPA_GIT=https://github.com/krakenjs/kappa.git
 KAPPA_LOCAL_PATH=/opt/kappa
+
+sed -i 's/http:\/\/archive\.ubuntu\.com\/ubuntu\//http:\/\/mirrors\.aliyun\.com\/ubuntu\//g' /etc/apt/sources.list
 
 # adding signing key
 apt-get update
@@ -21,19 +23,23 @@ echo 'deb https://deb.nodesource.com/node trusty main' \
 
 # installing rest software
 apt-get update
-apt-get install -y dnsutils git nodejs couchdb supervisor
+apt-get install -y dnsutils git couchdb supervisor
+
+# installing nodejs
+curl -sL https://deb.nodesource.com/setup_7.x | bash -
+apt-get install -y nodejs
 
 #install couchapp
 git clone "${COUCHAPP_GIT}" "${COUCHAPP_LOCAL_PATH}"
 cd "${COUCHAPP_LOCAL_PATH}"
 git checkout "${COUCHAPP_VERSION}"
-npm install
+npm install --registry=https://registry.npm.taobao.org
 
 #install kappa
 git clone "${KAPPA_GIT}" "${KAPPA_LOCAL_PATH}"
 cd "${KAPPA_LOCAL_PATH}"
 git checkout "${KAPPA_VERSION}"
-npm install -g .
+npm install -g . --registry=https://registry.npm.taobao.org
 
 cp /app/setup/couchdb.ini /etc/couchdb/local.ini
 
